@@ -6,15 +6,17 @@ import {
   ArrowRight,
   CalendarDays,
   Check,
-  Clock3,
-  Compass,
   ExternalLink,
-  Hotel,
   MapPin,
-  Moon,
   Sparkles,
   X,
 } from "lucide-react";
+import { EventThumbnail } from "@/components/event-thumbnail";
+import {
+  attractionPhoto,
+  bookingAttractionUrl,
+  marrakechBookingUrl,
+} from "@/lib/attraction-media";
 import type {
   Booking,
   ItineraryPlan,
@@ -52,18 +54,14 @@ const shortDay = (date: string) =>
   );
 const mapsUrl = (place: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
-const slotIcon = (kind: PlanItem["kind"]) =>
-  kind === "booking" ? (
-    <Hotel size={17} />
-  ) : kind === "visit" ? (
-    <Compass size={17} />
-  ) : kind === "rest" ? (
-    <Moon size={17} />
-  ) : kind === "todo" ? (
-    <MapPin size={17} />
-  ) : (
-    <Clock3 size={17} />
-  );
+const thumbnailVariant = (item: PlanItem) =>
+  item.kind !== "booking"
+    ? item.kind
+    : item.title.startsWith("Installation") || item.title.startsWith("Départ")
+      ? "hotel"
+      : item.detail.startsWith("Vol")
+        ? "flight"
+        : "activity";
 
 export function ItineraryPanel({
   plan,
@@ -128,6 +126,17 @@ export function ItineraryPanel({
           programme pour obtenir des idées locales.
         </div>
       )}
+      {plan.days.some((item) => item.city === "Marrakech") && (
+        <a
+          className="booking-discovery"
+          href={marrakechBookingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Sparkles size={18} /> Explorer les attractions de Marrakech sur
+          Booking.com <ExternalLink size={14} />
+        </a>
+      )}
       <div className="day-strip" aria-label="Choisir une journée">
         {plan.days.map((item, index) => (
           <button
@@ -175,7 +184,10 @@ export function ItineraryPanel({
               <span>{item.slot}</span>
               <i />
             </div>
-            <span className="day-item-icon">{slotIcon(item.kind)}</span>
+            <EventThumbnail
+              title={item.title}
+              variant={thumbnailVariant(item)}
+            />
             <div className="day-item-content">
               <span className="day-item-kind">{kindNames[item.kind]}</span>
               <strong>{item.title}</strong>
@@ -185,7 +197,9 @@ export function ItineraryPanel({
                   <MapPin size={13} /> {item.location}
                 </span>
               )}
-              {(item.location || item.source_url) && (
+              {(item.location ||
+                item.source_url ||
+                bookingAttractionUrl(item.title)) && (
                 <div className="day-item-links">
                   {item.location && (
                     <a
@@ -205,6 +219,35 @@ export function ItineraryPanel({
                       Source touristique <ExternalLink size={12} />
                     </a>
                   )}
+                  {bookingAttractionUrl(item.title) && (
+                    <a
+                      href={bookingAttractionUrl(item.title)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Activités sur Booking.com <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              )}
+              {attractionPhoto(item.title) && (
+                <div className="photo-credit">
+                  Photo :{" "}
+                  <a
+                    href={attractionPhoto(item.title)!.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {attractionPhoto(item.title)!.author}
+                  </a>{" "}
+                  ·{" "}
+                  <a
+                    href={attractionPhoto(item.title)!.license_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {attractionPhoto(item.title)!.license}
+                  </a>
                 </div>
               )}
             </div>

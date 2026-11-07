@@ -29,6 +29,10 @@ Dans un voyage, ouvrez **Itinéraire** puis **Créer un itinéraire**. Choisisse
 
 La génération fonctionne aussi sans clé IA et ne consomme aucun appel API. Des lieux précis sont proposés pour Marrakech ; pour les villes non couvertes ou inconnues, le programme indique ce qui reste à choisir. Les visites suggérées ne sont pas réservées. Vérifiez toujours horaires, billets et trajets.
 
+Les visites de Marrakech ont une photo à côté du programme. Les photos viennent de Wikimedia Commons ; chaque carte affiche son auteur et sa licence, et la liste complète figure dans [`public/attractions/credits.json`](public/attractions/credits.json). Les autres étapes utilisent une illustration par catégorie : aucune photo générique n’est présentée comme celle d’un hôtel réservé.
+
+Le lien **Activités sur Booking.com** ouvre la page des visites liées au lieu lorsque Booking.com en propose une, ou la page des attractions de Marrakech. L’application n’est pas connectée à l’inventaire de Booking.com et n’affiche ni prix ni disponibilité ; la réservation éventuelle se fait sur Booking.com.
+
 ## Activer l’extraction IA (optionnelle)
 
 Renseignez `OPENAI_API_KEY` côté serveur. L’IA ne fonctionne qu’en mode Supabase, avec un utilisateur authentifié. `OPENAI_MODEL` vaut `gpt-4.1-mini` par défaut et peut être modifié. Le serveur limite l’import à **10 appels IA par utilisateur et par jour**, 5 Mo par PDF, 25 000 caractères par import, avec un délai maximal de 15 secondes. Si l’IA est absente ou échoue, l’extraction simple reste disponible. L’utilisateur vérifie toujours les champs avant sauvegarde.

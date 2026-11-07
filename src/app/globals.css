@@ -542,6 +542,24 @@ a {
   background: #f5f4fb;
   color: #676478;
 }
+.booking-discovery {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px 0 18px;
+  padding: 12px 15px;
+  border: 1px solid #e3ddff;
+  border-radius: 10px;
+  background: #f5f2ff;
+  color: #5b49c6;
+  font-size: 12px;
+  font-weight: 700;
+}
+.booking-discovery svg {
+  flex: 0 0 auto;
+}
 .plan-alert svg {
   flex: 0 0 auto;
 }
@@ -634,7 +652,7 @@ a {
 }
 .day-item {
   display: grid;
-  grid-template-columns: 70px 38px 1fr;
+  grid-template-columns: 70px 90px 1fr;
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--line);
@@ -658,19 +676,43 @@ a {
   background: #dedbe8;
   margin-top: 9px;
 }
-.day-item-icon {
+.event-thumbnail {
   display: grid;
   place-items: center;
-  width: 35px;
-  height: 35px;
-  background: #f0edff;
+  width: 90px;
+  height: 90px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, #e9e3ff, #f8f3ff);
   color: var(--purple);
-  border-radius: 9px;
+  border-radius: 10px;
 }
-.day-item.rest .day-item-icon,
-.day-item.meal .day-item-icon {
-  background: #eaf8f2;
+.event-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.event-thumbnail.hotel {
+  background: linear-gradient(135deg, #ffe9db, #fff5e9);
+  color: #c97949;
+}
+.event-thumbnail.flight {
+  background: linear-gradient(135deg, #dcecff, #eaf9ff);
+  color: #548bc2;
+}
+.event-thumbnail.activity {
+  background: linear-gradient(135deg, #dff6ee, #f0fbf5);
+  color: #399470;
+}
+.event-thumbnail.rest,
+.event-thumbnail.meal {
+  background: linear-gradient(135deg, #e3f7ed, #fff7dc);
   color: #38856d;
+}
+.event-thumbnail.todo {
+  background: linear-gradient(135deg, #f2f1f7, #e8e7f2);
+  color: #878297;
 }
 .day-item-content {
   min-width: 0;
@@ -706,6 +748,7 @@ a {
   display: flex;
   gap: 15px;
   margin-top: 9px;
+  flex-wrap: wrap;
 }
 .day-item-links a {
   display: inline-flex;
@@ -714,6 +757,15 @@ a {
   color: #6351c7;
   font-size: 11px;
   font-weight: 700;
+}
+.photo-credit {
+  margin-top: 8px;
+  color: #a5a1ad;
+  font-size: 9px;
+}
+.photo-credit a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .plan-disclaimer {
   color: #9996a6;
@@ -878,9 +930,17 @@ a {
   border: 1px solid #edecf2;
   border-radius: 11px;
   padding: 18px 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
   justify-content: space-between;
   gap: 15px;
+}
+.booking-card .event-thumbnail {
+  width: 76px;
+  height: 76px;
+}
+.booking-main {
+  min-width: 0;
 }
 .booking-type {
   text-transform: uppercase;
@@ -1404,10 +1464,15 @@ a {
   }
   .booking-card {
     padding: 14px;
-    flex-direction: column;
+    grid-template-columns: 64px minmax(0, 1fr);
     gap: 11px;
   }
+  .booking-card .event-thumbnail {
+    width: 64px;
+    height: 64px;
+  }
   .booking-side {
+    grid-column: 2;
     flex-direction: row;
     align-items: center;
   }
@@ -1436,13 +1501,13 @@ a {
     min-height: auto;
   }
   .day-item {
-    grid-template-columns: 48px 30px 1fr;
+    grid-template-columns: 45px 60px minmax(0, 1fr);
     gap: 7px;
     padding: 12px;
   }
-  .day-item-icon {
-    width: 29px;
-    height: 29px;
+  .day-item .event-thumbnail {
+    width: 60px;
+    height: 60px;
   }
   .day-item-slot {
     font-size: 10px;

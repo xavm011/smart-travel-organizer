@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cloudEnabled, supabase } from "@/lib/supabase";
 import { ItineraryModal, ItineraryPanel } from "@/components/itinerary-panel";
+import { EventThumbnail } from "@/components/event-thumbnail";
 import { bookingSignature, generateItinerary } from "@/lib/itinerary";
 import {
   createBooking,
@@ -617,6 +618,7 @@ export default function Dashboard() {
                               1 && <span className="timeline-line" />}
                         </div>
                         <div className="booking-card">
+                          <EventThumbnail title={b.title} variant={b.type} />
                           <div className="booking-main">
                             <span className="booking-type">
                               {bookingLabel[b.type]}
