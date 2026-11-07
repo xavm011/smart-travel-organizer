@@ -1,6 +1,6 @@
 # Smart Travel Organizer
 
-MVP web responsive pour centraliser un voyage : destination et dates, réservations de vol, hôtel ou activité, import de texte/email ou PDF, vérification avant sauvegarde, chronologie, prochaines étapes et liens cartographiques.
+MVP web responsive pour centraliser un voyage : destination et dates, réservations de vol, hôtel ou activité, import de texte/email ou PDF, vérification avant sauvegarde, chronologie, prochaines étapes, liens cartographiques et programme quotidien personnalisable.
 
 ## Démarrer en 2 minutes
 
@@ -21,6 +21,14 @@ Ouvrez http://localhost:3000. Sans variables d’environnement, l’application 
 
 Le mode local ne migre pas automatiquement vers Supabase : exportez les informations utiles à la main avant de passer au mode synchronisé.
 
+Pour un projet Supabase créé avant l’ajout des itinéraires, exécutez [`supabase/migrations/20261107_itineraries.sql`](supabase/migrations/20261107_itineraries.sql) dans le SQL Editor. Les nouveaux projets utilisent directement le schéma complet.
+
+## Créer un itinéraire
+
+Dans un voyage, ouvrez **Itinéraire** puis **Créer un itinéraire**. Choisissez un rythme repos, équilibré ou actif. L’application propose un programme pour chaque jour, place les réservations existantes et réserve du temps pour les trajets et les pauses. Vous pouvez changer le rythme et recréer le programme. Après une modification des réservations, un message vous invite à le régénérer.
+
+La génération fonctionne aussi sans clé IA et ne consomme aucun appel API. Des lieux précis sont proposés pour Marrakech ; pour les villes non couvertes ou inconnues, le programme indique ce qui reste à choisir. Les visites suggérées ne sont pas réservées. Vérifiez toujours horaires, billets et trajets.
+
 ## Activer l’extraction IA (optionnelle)
 
 Renseignez `OPENAI_API_KEY` côté serveur. L’IA ne fonctionne qu’en mode Supabase, avec un utilisateur authentifié. `OPENAI_MODEL` vaut `gpt-4.1-mini` par défaut et peut être modifié. Le serveur limite l’import à **10 appels IA par utilisateur et par jour**, 5 Mo par PDF, 25 000 caractères par import, avec un délai maximal de 15 secondes. Si l’IA est absente ou échoue, l’extraction simple reste disponible. L’utilisateur vérifie toujours les champs avant sauvegarde.
@@ -35,7 +43,7 @@ npm run lint
 npm run build
 ```
 
-Parcours manuel : créer un voyage → ajouter une réservation → ouvrir la chronologie et les prochaines étapes → importer une confirmation → corriger les champs → enregistrer → ouvrir l’adresse sur une carte → supprimer la réservation et le voyage.
+Parcours manuel : créer un voyage → ajouter une réservation → ouvrir la chronologie et les prochaines étapes → créer un itinéraire dans les trois rythmes → changer une réservation et régénérer → importer une confirmation → corriger les champs → enregistrer → ouvrir l’adresse sur une carte → supprimer la réservation et le voyage.
 
 ## Publier
 
@@ -43,4 +51,4 @@ Poussez ce dossier dans un dépôt GitHub. Dans Vercel, importez le dépôt et a
 
 ## Périmètre de la V1
 
-La V1 contient la saisie et la suppression, l’import assisté et la consultation. Elle n’inclut pas les réservations automatiques, la lecture de boîte mail, les cartes intégrées, l’OCR, le partage entre voyageurs ou les notifications. Les dates de réservation sont saisies dans l’heure locale du voyage, sans conversion de fuseau horaire.
+La V1 contient la saisie et la suppression, l’import assisté, la consultation et un itinéraire quotidien. Elle n’inclut pas les réservations automatiques, la lecture de boîte mail, les cartes intégrées, l’OCR, le partage entre voyageurs ou les notifications. Les dates de réservation sont saisies dans l’heure locale du voyage, sans conversion de fuseau horaire.

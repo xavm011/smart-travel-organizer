@@ -1,8 +1,9 @@
 import { supabase } from "./supabase";
-import type { Booking, BookingDraft, Trip } from "./types";
+import type { Booking, BookingDraft, ItineraryPlan, Trip } from "./types";
 
 const TRIPS_KEY = "sto_trips_v1";
 const BOOKINGS_KEY = "sto_bookings_v1";
+const ITINERARIES_KEY = "sto_itineraries_v1";
 const read = <T>(key: string): T[] => {
   try {
     return JSON.parse(localStorage.getItem(key) || "[]") as T[];
@@ -58,6 +59,10 @@ export async function deleteTrip(id: string) {
       BOOKINGS_KEY,
       read<Booking>(BOOKINGS_KEY).filter((b) => b.trip_id !== id),
     );
+    write(
+      ITINERARIES_KEY,
+      read<ItineraryPlan>(ITINERARIES_KEY).filter((p) => p.trip_id !== id),
+    );
     return;
   }
   const { error } = await supabase.from("trips").delete().eq("id", id);
@@ -105,5 +110,38 @@ export async function deleteBooking(id: string) {
     return;
   }
   const { error } = await supabase.from("bookings").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function getItinerary(
+  tripId: string,
+): Promise<ItineraryPlan | null> {
+  if (!supabase)
+    return (
+      read<ItineraryPlan>(ITINERARIES_KEY).find((p) => p.trip_id === tripId) ||
+      null
+    );
+  const { data, error } = await supabase
+    .from("itineraries")
+    .select("trip_id, pace, days, booking_signature, generated_at")
+    .eq("trip_id", tripId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as ItineraryPlan | null;
+}
+
+export async function saveItinerary(plan: ItineraryPlan): Promise<void> {
+  if (!supabase) {
+    write(ITINERARIES_KEY, [
+      ...read<ItineraryPlan>(ITINERARIES_KEY).filter(
+        (p) => p.trip_id !== plan.trip_id,
+      ),
+      plan,
+    ]);
+    return;
+  }
+  const { error } = await supabase
+    .from("itineraries")
+    .upsert(plan, { onConflict: "trip_id" });
   if (error) throw error;
 }

@@ -19,19 +19,25 @@ import {
   X,
 } from "lucide-react";
 import { cloudEnabled, supabase } from "@/lib/supabase";
+import { ItineraryModal, ItineraryPanel } from "@/components/itinerary-panel";
+import { bookingSignature, generateItinerary } from "@/lib/itinerary";
 import {
   createBooking,
   createTrip,
   deleteBooking,
   deleteTrip,
+  getItinerary,
   listBookings,
   listTrips,
+  saveItinerary,
 } from "@/lib/store";
 import {
   emptyBooking,
   type Booking,
   type BookingDraft,
   type BookingType,
+  type ItineraryPlan,
+  type TravelPace,
   type Trip,
 } from "@/lib/types";
 
@@ -83,7 +89,13 @@ export default function Dashboard() {
   const [modal, setModal] = useState<"trip" | "booking" | "import" | null>(
     null,
   );
-  const [view, setView] = useState<"timeline" | "next">("timeline");
+  const [view, setView] = useState<"timeline" | "next" | "itinerary">(
+    "timeline",
+  );
+  const [itinerary, setItinerary] = useState<ItineraryPlan | null>(null);
+  const [planModal, setPlanModal] = useState(false);
+  const [planBusy, setPlanBusy] = useState(false);
+  const [planError, setPlanError] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
@@ -133,6 +145,24 @@ export default function Dashboard() {
   }, [ready, userEmail]);
   useEffect(() => {
     if (selectedId) localStorage.setItem(SELECTED_TRIP_KEY, selectedId);
+  }, [selectedId]);
+  useEffect(() => {
+    let cancelled = false;
+    if (selectedId)
+      getItinerary(selectedId)
+        .then((plan) => {
+          if (!cancelled) setItinerary(plan);
+        })
+        .catch((e) => {
+          if (!cancelled) setError(e.message);
+        });
+    else
+      queueMicrotask(() => {
+        if (!cancelled) setItinerary(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [selectedId]);
   useEffect(() => {
     let cancelled = false;
@@ -203,6 +233,22 @@ export default function Dashboard() {
       if (selectedId) await refreshBookings(selectedId);
     } catch (e) {
       setError((e as Error).message);
+    }
+  }
+  async function createPlan(pace: TravelPace) {
+    if (!selected) return;
+    setPlanError("");
+    setPlanBusy(true);
+    try {
+      const plan = generateItinerary(selected, bookings, pace);
+      await saveItinerary(plan);
+      setItinerary(plan);
+      setView("itinerary");
+      setPlanModal(false);
+    } catch (e) {
+      setPlanError((e as Error).message);
+    } finally {
+      setPlanBusy(false);
     }
   }
 
@@ -473,8 +519,23 @@ export default function Dashboard() {
                     >
                       Prochaines étapes <span>{upcoming.length}</span>
                     </button>
+                    <button
+                      className={view === "itinerary" ? "active" : ""}
+                      onClick={() => setView("itinerary")}
+                    >
+                      Itinéraire
+                    </button>
                   </div>
                   <div className="panel-actions">
+                    <button
+                      className="secondary plan-trigger"
+                      onClick={() => {
+                        setPlanError("");
+                        setPlanModal(true);
+                      }}
+                    >
+                      <Sparkles size={17} /> Créer un itinéraire
+                    </button>
                     <button
                       className="secondary"
                       onClick={() => setModal("import")}
@@ -489,7 +550,21 @@ export default function Dashboard() {
                     </button>
                   </div>
                 </div>
-                {sorted.length === 0 ? (
+                {view === "itinerary" ? (
+                  <ItineraryPanel
+                    key={`${selected.id}-${itinerary?.generated_at || "empty"}`}
+                    plan={itinerary?.trip_id === selected.id ? itinerary : null}
+                    changed={
+                      !!itinerary &&
+                      itinerary.trip_id === selected.id &&
+                      bookingSignature(bookings) !== itinerary.booking_signature
+                    }
+                    onGenerate={() => {
+                      setPlanError("");
+                      setPlanModal(true);
+                    }}
+                  />
+                ) : sorted.length === 0 ? (
                   <div className="bookings-empty">
                     <div className="bookings-empty-icon">
                       <CalendarDays size={27} />
@@ -663,6 +738,17 @@ export default function Dashboard() {
             await refreshBookings(selectedId);
             setModal(null);
           }}
+        />
+      )}
+      {planModal && selected && (
+        <ItineraryModal
+          trip={selected}
+          bookings={bookings}
+          existing={itinerary?.trip_id === selected.id}
+          busy={planBusy}
+          error={planError}
+          onClose={() => setPlanModal(false)}
+          onCreate={createPlan}
         />
       )}
     </div>

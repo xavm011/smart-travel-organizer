@@ -477,6 +477,302 @@ a {
   display: flex;
   gap: 9px;
 }
+.plan-trigger {
+  color: #5b49c6;
+  background: #f5f2ff;
+  border-color: #ebe5ff;
+}
+.plan-empty {
+  padding: 65px 24px 72px;
+  text-align: center;
+  max-width: 580px;
+  margin: auto;
+}
+.plan-empty-icon {
+  width: 65px;
+  height: 65px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  border-radius: 19px;
+  background: #f2edff;
+  color: var(--purple);
+}
+.plan-empty h3,
+.plan-summary h3 {
+  font:
+    800 23px Manrope,
+    Arial;
+  letter-spacing: -0.7px;
+  margin: 9px 0;
+}
+.plan-empty p {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0 auto 24px;
+}
+.plan-view {
+  padding: 28px;
+}
+.plan-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.plan-summary p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+.plan-alert {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  background: #fff4e8;
+  color: #855329;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.plan-alert.muted {
+  background: #f5f4fb;
+  color: #676478;
+}
+.plan-alert svg {
+  flex: 0 0 auto;
+}
+.day-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 5px 1px 16px;
+  scrollbar-width: thin;
+}
+.day-strip button {
+  flex: 0 0 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  text-align: left;
+}
+.day-strip button.selected {
+  background: #f2efff;
+  border-color: #afa4e9;
+  box-shadow: 0 0 0 1px #afa4e9;
+}
+.day-strip button span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--purple);
+}
+.day-strip button strong {
+  font:
+    800 15px Manrope,
+    Arial;
+}
+.day-strip button small {
+  color: var(--muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.day-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-top: 1px solid var(--line);
+  padding: 24px 0 16px;
+}
+.day-heading h4 {
+  font:
+    800 19px Manrope,
+    Arial;
+  text-transform: capitalize;
+  margin: 5px 0;
+}
+.day-heading p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+.day-arrows {
+  display: flex;
+  gap: 7px;
+}
+.day-arrows button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+}
+.day-arrows button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.day-items {
+  display: grid;
+  gap: 9px;
+}
+.day-item {
+  display: grid;
+  grid-template-columns: 70px 38px 1fr;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+}
+.day-item.booking {
+  background: #f8f6ff;
+  border-color: #e7e0ff;
+}
+.day-item-slot {
+  font-size: 11px;
+  color: #8c899b;
+  text-transform: capitalize;
+  padding-top: 8px;
+}
+.day-item-slot i {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #dedbe8;
+  margin-top: 9px;
+}
+.day-item-icon {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  background: #f0edff;
+  color: var(--purple);
+  border-radius: 9px;
+}
+.day-item.rest .day-item-icon,
+.day-item.meal .day-item-icon {
+  background: #eaf8f2;
+  color: #38856d;
+}
+.day-item-content {
+  min-width: 0;
+}
+.day-item-kind {
+  display: block;
+  color: var(--purple);
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 9px;
+  letter-spacing: 0.7px;
+  margin-bottom: 3px;
+}
+.day-item-content strong {
+  font:
+    800 13px Manrope,
+    Arial;
+}
+.day-item-content p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #777789;
+  margin: 5px 0;
+}
+.day-item-place {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: #747184;
+  font-size: 11px;
+}
+.day-item-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 9px;
+}
+.day-item-links a {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: #6351c7;
+  font-size: 11px;
+  font-weight: 700;
+}
+.plan-disclaimer {
+  color: #9996a6;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 18px;
+}
+.plan-modal {
+  max-width: 680px;
+}
+.pace-intro {
+  font:
+    800 14px Manrope,
+    Arial;
+}
+.pace-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.pace-options button {
+  min-height: 133px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 14px;
+  background: #fff;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pace-options button.selected {
+  border-color: #a99dea;
+  background: #f6f3ff;
+  box-shadow: 0 0 0 1px #a99dea;
+}
+.pace-check {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border: 1px solid #bdb8cf;
+  border-radius: 50%;
+  color: #fff;
+}
+.pace-options button.selected .pace-check {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+.pace-options strong {
+  font:
+    800 14px Manrope,
+    Arial;
+}
+.pace-options small {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+}
 .bookings-empty {
   text-align: center;
   padding: 61px 20px 69px;
@@ -1077,11 +1373,20 @@ a {
     height: 54px;
     width: 100%;
     gap: 20px;
+    overflow-x: auto;
   }
   .panel-actions {
     width: 100%;
     padding: 0 0 14px;
     justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .plan-view {
+    padding: 20px 14px;
+  }
+  .plan-summary {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .timeline {
     padding: 22px 10px 22px;
@@ -1124,6 +1429,28 @@ a {
   }
 }
 @media (max-width: 460px) {
+  .pace-options {
+    grid-template-columns: 1fr;
+  }
+  .pace-options button {
+    min-height: auto;
+  }
+  .day-item {
+    grid-template-columns: 48px 30px 1fr;
+    gap: 7px;
+    padding: 12px;
+  }
+  .day-item-icon {
+    width: 29px;
+    height: 29px;
+  }
+  .day-item-slot {
+    font-size: 10px;
+  }
+  .plan-trigger {
+    width: 100%;
+    justify-content: center;
+  }
   .stats {
     gap: 9px;
   }

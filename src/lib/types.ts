@@ -21,6 +21,29 @@ export type Booking = {
 };
 export type BookingDraft = Omit<Booking, "id" | "trip_id" | "created_at">;
 
+export type TravelPace = "rest" | "balanced" | "active";
+export type PlanItem = {
+  id: string;
+  slot: "matin" | "après-midi" | "soir";
+  kind: "booking" | "visit" | "rest" | "meal" | "todo";
+  title: string;
+  detail: string;
+  location?: string;
+  source_url?: string;
+};
+export type PlanDay = {
+  date: string;
+  city: string | null;
+  items: PlanItem[];
+};
+export type ItineraryPlan = {
+  trip_id: string;
+  pace: TravelPace;
+  days: PlanDay[];
+  booking_signature: string;
+  generated_at: string;
+};
+
 export const emptyBooking = (): BookingDraft => ({
   type: "flight",
   title: "",
