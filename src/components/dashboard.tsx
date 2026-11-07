@@ -47,6 +47,10 @@ const bookingLabel: Record<BookingType, string> = {
   hotel: "Hôtel",
   activity: "Activité",
 };
+const hasUnknownHotelTime = (booking: Booking) =>
+  booking.type === "hotel" &&
+  /T00:00(?::00)?$/.test(booking.start_at) &&
+  (!booking.end_at || /T00:00(?::00)?$/.test(booking.end_at));
 const BookingIcon = ({ type }: { type: BookingType }) =>
   type === "flight" ? (
     <Plane size={19} />
@@ -57,6 +61,16 @@ const BookingIcon = ({ type }: { type: BookingType }) =>
   );
 const mapLink = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+const SELECTED_TRIP_KEY = "sto_selected_trip_v1";
+const preferredTrip = (rows: Trip[], current: string | null) => {
+  const remembered = localStorage.getItem(SELECTED_TRIP_KEY);
+  return (
+    rows.find((t) => t.id === current)?.id ||
+    rows.find((t) => t.id === remembered)?.id ||
+    rows[0]?.id ||
+    null
+  );
+};
 
 export default function Dashboard() {
   const [ready, setReady] = useState(!cloudEnabled);
@@ -78,11 +92,7 @@ export default function Dashboard() {
   const refreshTrips = useCallback(async () => {
     const rows = await listTrips();
     setTrips(rows);
-    setSelectedId((current) =>
-      current && rows.some((t) => t.id === current)
-        ? current
-        : rows[0]?.id || null,
-    );
+    setSelectedId((current) => preferredTrip(rows, current));
   }, []);
   const refreshBookings = useCallback(
     async (id: string) => setBookings(await listBookings(id)),
@@ -112,11 +122,7 @@ export default function Dashboard() {
       .then((rows) => {
         if (cancelled) return;
         setTrips(rows);
-        setSelectedId((current) =>
-          current && rows.some((t) => t.id === current)
-            ? current
-            : rows[0]?.id || null,
-        );
+        setSelectedId((current) => preferredTrip(rows, current));
       })
       .catch((e) => {
         if (!cancelled) setError(e.message);
@@ -125,6 +131,9 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [ready, userEmail]);
+  useEffect(() => {
+    if (selectedId) localStorage.setItem(SELECTED_TRIP_KEY, selectedId);
+  }, [selectedId]);
   useEffect(() => {
     let cancelled = false;
     if (selectedId)
@@ -149,9 +158,12 @@ export default function Dashboard() {
     () => [...bookings].sort((a, b) => a.start_at.localeCompare(b.start_at)),
     [bookings],
   );
-  const upcoming = sorted.filter(
-    (b) => new Date(b.start_at).getTime() >= now - 60 * 60 * 1000,
-  );
+  const upcoming = sorted.filter((b) => {
+    const start = hasUnknownHotelTime(b)
+      ? new Date(`${b.start_at.slice(0, 10)}T23:59:59`).getTime()
+      : new Date(b.start_at).getTime();
+    return start >= now - 60 * 60 * 1000;
+  });
   const next = upcoming[0];
   const activeTrips = trips.filter(
     (t) => new Date(`${t.end_date}T23:59:59`).getTime() >= now,
@@ -537,14 +549,29 @@ export default function Dashboard() {
                             <h3>{b.title}</h3>
                             <div className="booking-meta">
                               <span>
-                                <Clock3 size={14} />{" "}
-                                {dateFmt(b.start_at, {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                                {b.end_at
-                                  ? ` → ${dateFmt(b.end_at, { hour: "2-digit", minute: "2-digit" })}`
-                                  : ""}
+                                {hasUnknownHotelTime(b) ? (
+                                  <>
+                                    <CalendarDays size={14} />{" "}
+                                    {dateFmt(b.start_at, {
+                                      day: "numeric",
+                                      month: "short",
+                                    })}
+                                    {b.end_at
+                                      ? ` → ${dateFmt(b.end_at, { day: "numeric", month: "short" })}`
+                                      : ""}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock3 size={14} />{" "}
+                                    {dateFmt(b.start_at, {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                    {b.end_at
+                                      ? ` → ${dateFmt(b.end_at, { hour: "2-digit", minute: "2-digit" })}`
+                                      : ""}
+                                  </>
+                                )}
                               </span>
                               {(b.location || b.address) && (
                                 <span>
@@ -564,7 +591,9 @@ export default function Dashboard() {
                           <div className="booking-side">
                             {(b.address || b.location) && (
                               <a
-                                href={mapLink(b.address || b.location)}
+                                href={mapLink(
+                                  b.address || `${b.title}, ${b.location}`,
+                                )}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="map-link"
