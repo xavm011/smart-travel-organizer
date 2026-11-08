@@ -16,17 +16,25 @@ const write = <T>(key: string, rows: T[]) =>
   localStorage.setItem(key, JSON.stringify(rows));
 
 const MARRAKECH_TRIP_ID = "demo-marrakech-2026";
+const REQUIRED_DEMO_BOOKING_IDS = [
+  "demo-iberostar-palmeraie",
+  "demo-cesar-resort",
+  "demo-sentral-alea-miami",
+  "demo-itc-conference-miami",
+  "demo-tony-hotel-south-beach",
+];
 
 function seedMarrakechTrip() {
   const existing = read<Trip>(TRIPS_KEY);
-  if (existing.length) return existing;
+  const demoTrip = existing.find((trip) => trip.id === MARRAKECH_TRIP_ID);
+  if (existing.length && !demoTrip) return existing;
 
   const trip: Trip = {
     id: MARRAKECH_TRIP_ID,
-    destination: "Marrakech",
+    destination: "Maroc et États-Unis",
     start_date: "2026-11-10",
-    end_date: "2026-11-17",
-    created_at: new Date().toISOString(),
+    end_date: "2026-11-26",
+    created_at: demoTrip?.created_at || new Date().toISOString(),
   };
   const bookings: Booking[] = [
     {
@@ -55,12 +63,79 @@ function seedMarrakechTrip() {
       notes: "Confirmation à vérifier avant le départ.",
       created_at: new Date().toISOString(),
     },
+    {
+      id: "demo-sentral-alea-miami",
+      trip_id: trip.id,
+      type: "hotel",
+      title: "Sentral Alea Miami",
+      start_at: "2026-11-19T15:00:00",
+      end_at: "2026-11-23T11:00:00",
+      location: "Miami",
+      address: "230 NE 4th St, Miami, FL 33132",
+      reference: "",
+      notes: "Séjour du 19 au 23 novembre 2026.",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-itc-conference-miami",
+      trip_id: trip.id,
+      type: "activity",
+      title: "Into The Cryptoverse Conference",
+      start_at: "2026-11-20T09:00:00",
+      end_at: "2026-11-22T18:00:00",
+      location: "Miami",
+      address: "JW Marriott Marquis Miami, 255 Biscayne Boulevard Way, Miami, FL 33131",
+      reference: "",
+      notes: "Conférence ITC du 20 au 22 novembre 2026.",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-tony-hotel-south-beach",
+      trip_id: trip.id,
+      type: "hotel",
+      title: "Tony Hotel South Beach",
+      start_at: "2026-11-23T15:00:00",
+      end_at: "2026-11-26T11:00:00",
+      location: "Miami Beach",
+      address: "801 Collins Ave, Miami Beach, FL 33139",
+      reference: "",
+      notes: "Séjour du 23 au 26 novembre 2026.",
+      created_at: new Date().toISOString(),
+    },
   ];
-  const plan = generateItinerary(trip, bookings, "balanced");
-  write(TRIPS_KEY, [trip]);
-  write(BOOKINGS_KEY, bookings);
-  write(ITINERARIES_KEY, [plan]);
-  return [trip];
+
+  const storedBookings = read<Booking>(BOOKINGS_KEY);
+  const alreadyCurrent =
+    demoTrip?.destination === trip.destination &&
+    demoTrip.end_date === trip.end_date &&
+    REQUIRED_DEMO_BOOKING_IDS.every((id) =>
+      storedBookings.some((booking) => booking.id === id),
+    );
+  if (alreadyCurrent) return existing;
+
+  const demoBookingIds = new Set(REQUIRED_DEMO_BOOKING_IDS);
+  const mergedBookings = [
+    ...storedBookings.filter(
+      (booking) =>
+        booking.trip_id !== trip.id || !demoBookingIds.has(booking.id),
+    ),
+    ...bookings,
+  ];
+  const plan = generateItinerary(
+    trip,
+    mergedBookings.filter((booking) => booking.trip_id === trip.id),
+    "balanced",
+  );
+  const trips = [...existing.filter((row) => row.id !== trip.id), trip];
+  write(TRIPS_KEY, trips);
+  write(BOOKINGS_KEY, mergedBookings);
+  write(ITINERARIES_KEY, [
+    ...read<ItineraryPlan>(ITINERARIES_KEY).filter(
+      (row) => row.trip_id !== trip.id,
+    ),
+    plan,
+  ]);
+  return trips;
 }
 
 export async function listTrips(): Promise<Trip[]> {

@@ -148,9 +148,12 @@ function fixedItems(date: string, bookings: Booking[]): PlanItem[] {
           detail: "Vérifiez l’heure de départ auprès de l’établissement.",
           location: booking.location,
         });
-    } else if (dayOf(booking.start_at) === date) {
+    } else if (
+      dayOf(booking.start_at) <= date &&
+      (!booking.end_at || date <= dayOf(booking.end_at))
+    ) {
       items.push({
-        id: booking.id,
+        id: `${booking.id}-${date}`,
         slot: timeSlot(booking.start_at),
         kind: "booking",
         title: booking.title,
