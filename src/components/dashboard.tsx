@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -69,6 +70,39 @@ const BookingIcon = ({ type }: { type: BookingType }) =>
 const mapLink = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 const SELECTED_TRIP_KEY = "sto_selected_trip_v1";
+const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
+
+function photoDataUrl(file: File): Promise<string> {
+  if (!file.type.startsWith("image/"))
+    return Promise.reject(new Error("Choisissez une image."));
+  if (file.size > MAX_PHOTO_BYTES)
+    return Promise.reject(new Error("La photo ne doit pas dépasser 12 Mo."));
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Impossible de lire cette photo."));
+    reader.onload = () => {
+      const image = new window.Image();
+      image.onerror = () => reject(new Error("Format d’image non reconnu."));
+      image.onload = () => {
+        const maxSide = 1200;
+        const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        const context = canvas.getContext("2d");
+        if (!context) {
+          reject(new Error("Impossible de préparer cette photo."));
+          return;
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.78));
+      };
+      image.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 const preferredTrip = (rows: Trip[], current: string | null) => {
   const remembered = localStorage.getItem(SELECTED_TRIP_KEY);
   return (
@@ -621,7 +655,11 @@ export default function Dashboard() {
                               1 && <span className="timeline-line" />}
                         </div>
                         <div className="booking-card">
-                          <EventThumbnail title={b.title} variant={b.type} />
+                          <EventThumbnail
+                            title={b.title}
+                            variant={b.type}
+                            imageData={b.image_data}
+                          />
                           <div className="booking-main">
                             <span className="booking-type">
                               {bookingLabel[b.type]}
@@ -880,8 +918,23 @@ function BookingFields({
   draft: BookingDraft;
   setDraft: (draft: BookingDraft) => void;
 }) {
+  const [photoError, setPhotoError] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
   const update = (part: Partial<BookingDraft>) =>
     setDraft({ ...draft, ...part });
+
+  async function choosePhoto(file?: File) {
+    if (!file) return;
+    setPhotoError("");
+    setPhotoBusy(true);
+    try {
+      update({ image_data: await photoDataUrl(file) });
+    } catch (error) {
+      setPhotoError((error as Error).message);
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
   return (
     <div className="fields">
       <div className="type-choices">
@@ -966,6 +1019,58 @@ function BookingFields({
           onChange={(e) => update({ notes: e.target.value })}
         />
       </label>
+      <div className="photo-field">
+        <span className="photo-field-label">
+          Photo <span className="optional">(facultatif)</span>
+        </span>
+        <div className="photo-field-row">
+          {draft.image_data ? (
+            <span className="photo-preview">
+              <Image
+                src={draft.image_data}
+                alt="Aperçu de la photo sélectionnée"
+                width={88}
+                height={68}
+                unoptimized
+              />
+            </span>
+          ) : (
+            <span className="photo-placeholder">
+              <FileUp size={20} />
+            </span>
+          )}
+          <div>
+            <label className="secondary photo-picker">
+              <FileUp size={15} />
+              {photoBusy
+                ? "Préparation…"
+                : draft.image_data
+                  ? "Changer la photo"
+                  : "Choisir dans la photothèque"}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={photoBusy}
+                onChange={(event) => choosePhoto(event.target.files?.[0])}
+              />
+            </label>
+            {draft.image_data && (
+              <button
+                type="button"
+                className="photo-remove"
+                onClick={() => update({ image_data: "" })}
+              >
+                Retirer
+              </button>
+            )}
+          </div>
+        </div>
+        <small className="photo-help">
+          Sur iPhone, ce bouton ouvre la photothèque. L’image est redimensionnée
+          avant l’enregistrement.
+        </small>
+        {photoError && <div className="notice error">{photoError}</div>}
+      </div>
     </div>
   );
 }

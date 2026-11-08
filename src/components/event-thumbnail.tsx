@@ -32,9 +32,11 @@ const icons = {
 export function EventThumbnail({
   title,
   variant,
+  imageData,
 }: {
   title: string;
   variant: Variant;
+  imageData?: string;
 }) {
   const photo = variant === "visit" ? attractionPhoto(title) : undefined;
   const Icon = icons[variant] || Sparkles;
@@ -42,9 +44,20 @@ export function EventThumbnail({
     <span
       className={`event-thumbnail ${variant}`}
       role="img"
-      aria-label={photo ? `Photo : ${title}` : `Illustration : ${variant}`}
+      aria-label={
+        imageData || photo ? `Photo : ${title}` : `Illustration : ${variant}`
+      }
     >
-      {photo ? (
+      {imageData ? (
+        <Image
+          src={imageData}
+          alt=""
+          width={112}
+          height={112}
+          sizes="112px"
+          unoptimized
+        />
+      ) : photo ? (
         <Image src={photo.file} alt="" width={112} height={112} sizes="112px" />
       ) : (
         <Icon size={28} strokeWidth={1.4} />

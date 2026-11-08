@@ -17,6 +17,7 @@ export type Booking = {
   address: string;
   reference: string;
   notes: string;
+  image_data?: string;
   created_at: string;
 };
 export type BookingDraft = Omit<Booking, "id" | "trip_id" | "created_at">;
@@ -53,4 +54,5 @@ export const emptyBooking = (): BookingDraft => ({
   address: "",
   reference: "",
   notes: "",
+  image_data: "",
 });

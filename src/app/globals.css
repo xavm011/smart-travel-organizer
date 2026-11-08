@@ -1788,3 +1788,57 @@ body { letter-spacing: -0.01em; }
   .page-intro h1 { font-size: 28px; }
   .stats { margin-bottom: 36px; }
 }
+
+.photo-field {
+  display: grid;
+  gap: 9px;
+}
+.photo-field-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #555d58;
+}
+.photo-field-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.photo-preview,
+.photo-placeholder {
+  width: 88px;
+  height: 68px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #68756d;
+  background: #eef2ee;
+}
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-picker {
+  min-height: 36px;
+  padding: 8px 12px;
+}
+.photo-picker input {
+  display: none;
+}
+.photo-remove {
+  display: block;
+  margin-top: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8b5c5c;
+  font-size: 11px;
+}
+.photo-help {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
