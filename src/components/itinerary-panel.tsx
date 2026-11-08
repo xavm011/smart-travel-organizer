@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
+  CarFront,
   Check,
   ExternalLink,
+  Footprints,
   MapPin,
   Sparkles,
   X,
@@ -17,6 +19,11 @@ import {
   bookingAttractionUrl,
   marrakechBookingUrl,
 } from "@/lib/attraction-media";
+import {
+  formatDuration,
+  travelLegsForDay,
+  type TravelLeg,
+} from "@/lib/travel-times";
 import type {
   Booking,
   ItineraryPlan,
@@ -54,6 +61,10 @@ const shortDay = (date: string) =>
   );
 const mapsUrl = (place: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+const mapPlaceForItem = (item: PlanItem) => {
+  const hotel = item.title.match(/^(?:Installation|Départ) · (.+)$/)?.[1];
+  return hotel ? `${hotel}, ${item.location}` : item.location || "";
+};
 const thumbnailVariant = (item: PlanItem) =>
   item.kind !== "booking"
     ? item.kind
@@ -65,10 +76,12 @@ const thumbnailVariant = (item: PlanItem) =>
 
 export function ItineraryPanel({
   plan,
+  bookings,
   changed,
   onGenerate,
 }: {
   plan: ItineraryPlan | null;
+  bookings: Booking[];
   changed: boolean;
   onGenerate: () => void;
 }) {
@@ -92,6 +105,7 @@ export function ItineraryPanel({
     );
 
   const day = plan.days[Math.min(selectedIndex, plan.days.length - 1)];
+  const travelLegs = travelLegsForDay(day, bookings);
   const missing = plan.days.filter((d) => !d.city).length;
   const visits = plan.days.reduce(
     (n, d) => n + d.items.filter((item) => item.kind === "visit").length,
@@ -178,85 +192,129 @@ export function ItineraryPanel({
         </div>
       </div>
       <div className="day-items">
-        {day.items.map((item) => (
-          <div className={`day-item ${item.kind}`} key={item.id}>
-            <div className="day-item-slot">
-              <span>{item.slot}</span>
-              <i />
+        {day.items.map((item, index) => (
+          <Fragment key={item.id}>
+            {travelLegs[index] && <TravelLegCard leg={travelLegs[index]} />}
+            <div className={`day-item ${item.kind}`}>
+              <div className="day-item-slot">
+                <span>{item.slot}</span>
+                <i />
+              </div>
+              <EventThumbnail
+                title={item.title}
+                variant={thumbnailVariant(item)}
+              />
+              <div className="day-item-content">
+                <span className="day-item-kind">{kindNames[item.kind]}</span>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+                {item.location && (
+                  <span className="day-item-place">
+                    <MapPin size={13} /> {item.location}
+                  </span>
+                )}
+                {(item.location ||
+                  item.source_url ||
+                  bookingAttractionUrl(item.title)) && (
+                  <div className="day-item-links">
+                    {item.location && (
+                      <a
+                        href={mapsUrl(mapPlaceForItem(item))}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Carte <ExternalLink size={12} />
+                      </a>
+                    )}
+                    {item.source_url && (
+                      <a
+                        href={item.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Source touristique <ExternalLink size={12} />
+                      </a>
+                    )}
+                    {bookingAttractionUrl(item.title) && (
+                      <a
+                        href={bookingAttractionUrl(item.title)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Activités sur Booking.com <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </div>
+                )}
+                {attractionPhoto(item.title) && (
+                  <div className="photo-credit">
+                    Photo :{" "}
+                    <a
+                      href={attractionPhoto(item.title)!.source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {attractionPhoto(item.title)!.author}
+                    </a>{" "}
+                    ·{" "}
+                    <a
+                      href={attractionPhoto(item.title)!.license_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {attractionPhoto(item.title)!.license}
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
-            <EventThumbnail
-              title={item.title}
-              variant={thumbnailVariant(item)}
-            />
-            <div className="day-item-content">
-              <span className="day-item-kind">{kindNames[item.kind]}</span>
-              <strong>{item.title}</strong>
-              <p>{item.detail}</p>
-              {item.location && (
-                <span className="day-item-place">
-                  <MapPin size={13} /> {item.location}
-                </span>
-              )}
-              {(item.location ||
-                item.source_url ||
-                bookingAttractionUrl(item.title)) && (
-                <div className="day-item-links">
-                  {item.location && (
-                    <a
-                      href={mapsUrl(item.location)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Carte <ExternalLink size={12} />
-                    </a>
-                  )}
-                  {item.source_url && (
-                    <a
-                      href={item.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Source touristique <ExternalLink size={12} />
-                    </a>
-                  )}
-                  {bookingAttractionUrl(item.title) && (
-                    <a
-                      href={bookingAttractionUrl(item.title)!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Activités sur Booking.com <ExternalLink size={12} />
-                    </a>
-                  )}
-                </div>
-              )}
-              {attractionPhoto(item.title) && (
-                <div className="photo-credit">
-                  Photo :{" "}
-                  <a
-                    href={attractionPhoto(item.title)!.source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {attractionPhoto(item.title)!.author}
-                  </a>{" "}
-                  ·{" "}
-                  <a
-                    href={attractionPhoto(item.title)!.license_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {attractionPhoto(item.title)!.license}
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
+          </Fragment>
         ))}
       </div>
       <div className="plan-disclaimer">
-        Programme suggéré. Vérifiez les horaires, billets et trajets avant de
-        partir ; aucune visite proposée n’est réservée automatiquement.
+        Durées ≈ indicatives, calculées à partir de la distance entre lieux
+        connus, sans circulation ni tracé des rues. Vérifiez le trajet réel sur
+        la carte ; un taxi peut vous déposer à distance d’un lieu dans la
+        médina. Aucune visite proposée n’est réservée automatiquement.
+      </div>
+    </div>
+  );
+}
+
+function TravelLegCard({ leg }: { leg: TravelLeg }) {
+  return (
+    <div className="travel-leg">
+      <div className="travel-leg-title">
+        <MapPin size={15} />{" "}
+        <span>
+          De {leg.from} vers {leg.to}
+        </span>
+      </div>
+      <div className="travel-leg-modes">
+        <a
+          href={leg.walkingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Itinéraire à pied de ${leg.from} vers ${leg.to}`}
+        >
+          <Footprints size={16} /> À pied{" "}
+          {leg.walkingMinutes === null
+            ? "· voir la carte"
+            : `≈ ${formatDuration(leg.walkingMinutes)}`}{" "}
+          <ExternalLink size={12} />
+        </a>
+        <a
+          href={leg.taxiUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Itinéraire en voiture ou taxi de ${leg.from} vers ${leg.to}`}
+        >
+          <CarFront size={16} /> Taxi{" "}
+          {leg.taxiMinutes === null
+            ? "· voir la carte"
+            : `≈ ${formatDuration(leg.taxiMinutes)}`}{" "}
+          <ExternalLink size={12} />
+        </a>
       </div>
     </div>
   );

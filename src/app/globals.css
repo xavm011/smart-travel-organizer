@@ -648,11 +648,64 @@ a {
 }
 .day-items {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 9px;
+}
+.travel-leg {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 1px 0 1px 82px;
+  padding: 10px 13px;
+  border: 1px dashed #dcd5f5;
+  border-radius: 10px;
+  background: #faf8ff;
+}
+.travel-leg-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: #706984;
+  font-size: 11px;
+}
+.travel-leg-title svg {
+  flex: 0 0 auto;
+  color: #7867d4;
+}
+.travel-leg-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.travel-leg-modes {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.travel-leg-modes a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid #e4dcfa;
+  border-radius: 7px;
+  background: #fff;
+  color: #5e4bc0;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.travel-leg-modes a:hover {
+  background: #f0eaff;
 }
 .day-item {
   display: grid;
-  grid-template-columns: 70px 90px 1fr;
+  grid-template-columns: 70px 90px minmax(0, 1fr);
+  min-width: 0;
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--line);
@@ -716,6 +769,7 @@ a {
 }
 .day-item-content {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .day-item-kind {
   display: block;
@@ -1444,6 +1498,11 @@ a {
   .plan-view {
     padding: 20px 14px;
   }
+  .travel-leg {
+    margin-left: 0;
+    align-items: flex-start;
+    flex-direction: column;
+  }
   .plan-summary {
     align-items: flex-start;
     flex-direction: column;
@@ -1494,6 +1553,20 @@ a {
   }
 }
 @media (max-width: 460px) {
+  .travel-leg-modes {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .travel-leg-modes a {
+    min-width: 0;
+    padding: 7px 5px;
+    font-size: 10px;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+  .travel-leg-title span { white-space: normal; overflow-wrap: anywhere; }
   .pace-options {
     grid-template-columns: 1fr;
   }

@@ -33,6 +33,8 @@ Les visites de Marrakech ont une photo à côté du programme. Les photos vienne
 
 Le lien **Activités sur Booking.com** ouvre la page des visites liées au lieu lorsque Booking.com en propose une, ou la page des attractions de Marrakech. L’application n’est pas connectée à l’inventaire de Booking.com et n’affiche ni prix ni disponibilité ; la réservation éventuelle se fait sur Booking.com.
 
+Entre deux étapes connues à Marrakech, le programme affiche une durée approximative à pied et en taxi. Les boutons ouvrent le trajet correspondant dans Google Maps pour obtenir un calcul réel. Les estimations locales reposent sur des positions de lieux issues d’[OpenStreetMap](https://www.openstreetmap.org/copyright) et affichées par [Mapcarta](https://mapcarta.com/) ; elles ne tiennent pas compte des rues, des embouteillages ou du point exact où un taxi peut s’arrêter. Si un lieu n’a pas de position suffisamment précise, l’application affiche seulement les liens vers la carte. Aucun appel payant à une API cartographique n’est nécessaire.
+
 ## Activer l’extraction IA (optionnelle)
 
 Renseignez `OPENAI_API_KEY` côté serveur. L’IA ne fonctionne qu’en mode Supabase, avec un utilisateur authentifié. `OPENAI_MODEL` vaut `gpt-4.1-mini` par défaut et peut être modifié. Le serveur limite l’import à **10 appels IA par utilisateur et par jour**, 5 Mo par PDF, 25 000 caractères par import, avec un délai maximal de 15 secondes. Si l’IA est absente ou échoue, l’extraction simple reste disponible. L’utilisateur vérifie toujours les champs avant sauvegarde.

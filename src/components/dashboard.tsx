@@ -555,6 +555,9 @@ export default function Dashboard() {
                   <ItineraryPanel
                     key={`${selected.id}-${itinerary?.generated_at || "empty"}`}
                     plan={itinerary?.trip_id === selected.id ? itinerary : null}
+                    bookings={bookings.filter(
+                      (booking) => booking.trip_id === selected.id,
+                    )}
                     changed={
                       !!itinerary &&
                       itinerary.trip_id === selected.id &&
