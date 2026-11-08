@@ -275,6 +275,8 @@ export function generateItinerary(
     };
 
     if (travelDay) {
+      if (city === "Marrakech")
+        addVisit(index === 0 ? "matin" : "après-midi");
       if (!used("matin") && !items.some((item) => item.slot === "matin"))
         add(
           "matin",

@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { generateItinerary } from "./itinerary";
 import type { Booking, BookingDraft, ItineraryPlan, Trip } from "./types";
 
 const TRIPS_KEY = "sto_trips_v1";
@@ -14,8 +15,56 @@ const read = <T>(key: string): T[] => {
 const write = <T>(key: string, rows: T[]) =>
   localStorage.setItem(key, JSON.stringify(rows));
 
+const MARRAKECH_TRIP_ID = "demo-marrakech-2026";
+
+function seedMarrakechTrip() {
+  const existing = read<Trip>(TRIPS_KEY);
+  if (existing.length) return existing;
+
+  const trip: Trip = {
+    id: MARRAKECH_TRIP_ID,
+    destination: "Marrakech",
+    start_date: "2026-11-10",
+    end_date: "2026-11-17",
+    created_at: new Date().toISOString(),
+  };
+  const bookings: Booking[] = [
+    {
+      id: "demo-iberostar-palmeraie",
+      trip_id: trip.id,
+      type: "hotel",
+      title: "Iberostar Waves Club Palmeraie Marrakech All Inclusive",
+      start_at: "2026-11-10T15:00:00",
+      end_at: "2026-11-14T11:00:00",
+      location: "Marrakech",
+      address: "Commune Rurale Alouidane, Marrakech",
+      reference: "",
+      notes: "Confirmation à vérifier avant le départ.",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-cesar-resort",
+      trip_id: trip.id,
+      type: "hotel",
+      title: "Cesar Resort & Spa",
+      start_at: "2026-11-14T15:00:00",
+      end_at: "2026-11-17T11:00:00",
+      location: "Marrakech",
+      address: "Route de l'Ourika, Zone Touristique de l'Agdal, Marrakech",
+      reference: "",
+      notes: "Confirmation à vérifier avant le départ.",
+      created_at: new Date().toISOString(),
+    },
+  ];
+  const plan = generateItinerary(trip, bookings, "balanced");
+  write(TRIPS_KEY, [trip]);
+  write(BOOKINGS_KEY, bookings);
+  write(ITINERARIES_KEY, [plan]);
+  return [trip];
+}
+
 export async function listTrips(): Promise<Trip[]> {
-  if (!supabase) return read<Trip>(TRIPS_KEY);
+  if (!supabase) return seedMarrakechTrip();
   const { data, error } = await supabase
     .from("trips")
     .select("*")
